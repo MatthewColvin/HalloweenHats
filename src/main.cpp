@@ -26,6 +26,9 @@ HatControlData doorManData; // Controller of the 2 headsets
 HatControlData bellBoyData; // Controlled by the 1 headset
 uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
+void onDataSend(uint8 *mac_addr, uint8_t sentStatus);
+void updateSelf(HatControlData &aControlData);
+
 // Bellboy
 
 void setup() {
