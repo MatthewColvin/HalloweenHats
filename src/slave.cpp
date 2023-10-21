@@ -4,9 +4,9 @@
 #include <espnow.h>
 
 // Slave receives the data from master and then runs the same logic.
-CommunicationData communicationData = {.isDoingAllowingEntryRoutine = false,
-                                       .isDoingDenyingEntryRoutine = false,
-                                       .RoutineStartTime = 0};
+CommunicationData communicationData = {
+    .isRequestingAllowingEntryRoutine = false,
+    .isRequestingDenyingEntryRoutine = false};
 
 // uint8_t doorManAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x6E, 0xAA};
 uint8_t doorManAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};

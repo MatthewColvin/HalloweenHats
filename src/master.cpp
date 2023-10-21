@@ -5,9 +5,9 @@
 #include <espnow.h>
 
 // Manage and send communication data via the CheckRoutineStartFunction
-CommunicationData communicationData = {.isDoingAllowingEntryRoutine = false,
-                                       .isDoingDenyingEntryRoutine = false,
-                                       .RoutineStartTime = 0};
+CommunicationData communicationData = {
+    .isRequestingAllowingEntryRoutine = false,
+    .isRequestingDenyingEntryRoutine = false};
 
 uint8_t bellBoyAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x81, 0x6C};
 // uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -95,18 +95,14 @@ void checkRoutineStart() {
   // Half second press does deny
   if (button1.lastHeldTime() > 500) {
     button1.lastReleaseHandled = true;
-
-    communicationData.RoutineStartTime = millis();
-    communicationData.isDoingDenyingEntryRoutine = true;
+    communicationData.isRequestingDenyingEntryRoutine = true;
     SendSlaveUpdate();
     return;
   }
   // quick press does allow entry
   if (button1.lastHeldTime() > 30) {
     button1.lastReleaseHandled = true;
-
-    communicationData.RoutineStartTime = millis();
-    communicationData.isDoingAllowingEntryRoutine = true;
+    communicationData.isRequestingAllowingEntryRoutine = true;
     SendSlaveUpdate();
   }
 }

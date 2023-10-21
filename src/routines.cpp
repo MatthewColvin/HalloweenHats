@@ -4,8 +4,9 @@
 Buzzer buzz1(D7);
 HatControlData controlData;
 
-bool isAllowRoutineSetup = false;
-bool isDenyRoutineSetup = false;
+bool isDoingAllowRoutine = false;
+bool isDoingDenyRoutine = false;
+unsigned long int routineStart = 0;
 
 Buzzer::Melody_t denyTone{
     .nbNotes = 24,
@@ -27,9 +28,9 @@ Buzzer::Melody_t acceptTone{
 //////////////////////////////////////////////////////////////////
 
 void HandleRoutines() {
-  if (communicationData.isDoingAllowingEntryRoutine) {
+  if (communicationData.isRequestingAllowingEntryRoutine) {
     doAllowEntryRoutineUpdate(controlData);
-  } else if (communicationData.isDoingDenyingEntryRoutine) {
+  } else if (communicationData.isRequestingDenyingEntryRoutine) {
     doDenyEntryRoutineUpdate(controlData);
   } else {
     if (buzz1.hasMelody()) {
@@ -43,40 +44,42 @@ void HandleRoutines() {
 }
 
 void doAllowEntryRoutineUpdate(HatControlData &aControlData) {
-  if (!isAllowRoutineSetup) {
+  if (!isDoingAllowRoutine) {
     Serial.println("AllowEntry!!");
+    routineStart = millis();
     buzz1.setMelody(&acceptTone);
     buzz1.unmute();
-    isAllowRoutineSetup = true;
+    isDoingAllowRoutine = true;
   }
   if (buzz1.hasMelody()) {
     // Ran while doing deny Routine
   } else {
-    if (isAllowRoutineSetup) {
+    if (isDoingAllowRoutine) {
       Serial.println("Ended Allow Entry!");
-      communicationData.isDoingAllowingEntryRoutine = false;
-      isAllowRoutineSetup = false;
+      communicationData.isRequestingAllowingEntryRoutine = false;
+      isDoingAllowRoutine = false;
     }
   }
 }
 
 void doDenyEntryRoutineUpdate(HatControlData &aControlData) {
-  if (!isDenyRoutineSetup) {
+  if (!isDoingDenyRoutine) {
     // Called once for setup
     Serial.println("Deny Entry!!");
+    routineStart = millis();
     buzz1.setMelody(&denyTone);
     buzz1.unmute();
-    isDenyRoutineSetup = true;
+    isDoingDenyRoutine = true;
   }
   if (buzz1.hasMelody()) {
     // Ran while doing deny Routine
 
   } else {
     // Clean up Setup Routine if its setup and end routine
-    if (isDenyRoutineSetup) {
+    if (isDoingDenyRoutine) {
       Serial.println("Ended Deny Entry!");
-      communicationData.isDoingDenyingEntryRoutine = false;
-      isDenyRoutineSetup = false;
+      communicationData.isRequestingDenyingEntryRoutine = false;
+      isDoingDenyRoutine = false;
     }
   }
 }
@@ -99,8 +102,8 @@ void doIdle(HatControlData &aControlData) {
 }
 
 void cancelRoutines() {
-  communicationData.isDoingAllowingEntryRoutine = false;
-  communicationData.isDoingDenyingEntryRoutine = false;
+  communicationData.isRequestingAllowingEntryRoutine = false;
+  communicationData.isRequestingDenyingEntryRoutine = false;
 }
 
 ////////////////////////////////////////////////////////////

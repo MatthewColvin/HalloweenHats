@@ -15,9 +15,8 @@ struct led {
 };
 
 struct CommunicationData {
-  bool isDoingAllowingEntryRoutine;
-  bool isDoingDenyingEntryRoutine;
-  unsigned long RoutineStartTime;
+  bool isRequestingAllowingEntryRoutine;
+  bool isRequestingDenyingEntryRoutine;
 };
 
 struct HatControlData {
