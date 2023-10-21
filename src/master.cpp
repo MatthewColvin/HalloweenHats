@@ -1,9 +1,10 @@
+#include "main.hpp"
+#include "routines.hpp"
 #include <Arduino.h>
 #include <Buzzer.h>
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-#include "main.hpp"
 // Manage and send communication data via the CheckRoutineStartFunction
 CommunicationData communicationData = {.isDoingAllowingEntryRoutine = false,
                                        .isDoingDenyingEntryRoutine = false,
@@ -24,7 +25,7 @@ void checkRoutineStart();
 void IRAM_ATTR button_isr() {
   auto current_time = millis();
   if (digitalRead(button1.PIN) == LOW &&
-      current_time - button1.lastPressTime > 100) {
+      current_time - button1.lastPressTime > 50) {
     button1.numberKeyPresses++;
     button1.pressed = true;
     button1.lastPressHandled = false;
@@ -65,18 +66,19 @@ void onDataSend(uint8 *mac_addr, uint8_t sentStatus) {
 }
 
 void checkRoutineStart() {
-  // Only Start Routines on Releases
   if (button1.pressed) {
     // Cancel routines on press so we have a way to quickly cancel
-    communicationData.isDoingAllowingEntryRoutine = false;
-    communicationData.isDoingDenyingEntryRoutine = false;
     // Send update once right on press.
     if (!button1.lastPressHandled) {
+      cancelRoutines();
+      Serial.println("Canceled Routines");
       SendSlaveUpdate();
       button1.lastPressHandled = true;
     }
     return;
   }
+
+  // Only Start Routines on Releases
   if (button1.lastReleaseHandled) {
     return;
   }
@@ -97,7 +99,7 @@ void checkRoutineStart() {
     return;
   }
   // quick press does allow entry
-  if (button1.lastHeldTime() > 50) {
+  if (button1.lastHeldTime() > 30) {
     button1.lastReleaseHandled = true;
 
     communicationData.RoutineStartTime = millis();

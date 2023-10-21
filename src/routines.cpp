@@ -22,15 +22,32 @@ Buzzer::Melody_t acceptTone{
     .duration = {50, 50, 100, 200},
     .frequency = {F5_NOTE_FREQ, G5_NOTE_FREQ, A5_NOTE_FREQ, B5_NOTE_FREQ}};
 
+//////////////////////////////////////////////////////////////////
+
+void HandleRoutines() {
+  if (communicationData.isDoingAllowingEntryRoutine) {
+    doAllowEntryRoutineUpdate(controlData);
+  } else if (communicationData.isDoingDenyingEntryRoutine) {
+    doDenyEntryRoutineUpdate(controlData);
+  } else {
+    doIdle(controlData);
+  }
+  updateSelf(controlData);
+
+  buzz1.step();
+}
+
 void doAllowEntryRoutineUpdate(HatControlData &aControlData) {
-  Serial.print("AllowEntry!!");
+  Serial.println("AllowEntry!!");
   buzz1.setMelody(&acceptTone);
+  buzz1.unmute();
   communicationData.isDoingAllowingEntryRoutine = false;
 }
 
 void doDenyEntryRoutineUpdate(HatControlData &aControlData) {
   Serial.println("DenyEntry!!");
   buzz1.setMelody(&denyTone);
+  buzz1.unmute();
   communicationData.isDoingDenyingEntryRoutine = false;
 }
 
@@ -51,17 +68,12 @@ void doIdle(HatControlData &aControlData) {
   }
 }
 
-void updateSelf(HatControlData &aControlData) {}
-
-void HandleRoutines() {
-  if (communicationData.isDoingAllowingEntryRoutine) {
-    doAllowEntryRoutineUpdate(controlData);
-  } else if (communicationData.isDoingDenyingEntryRoutine) {
-    doDenyEntryRoutineUpdate(controlData);
-  } else {
-    doIdle(controlData);
-  }
-  updateSelf(controlData);
-
-  buzz1.step();
+void cancelRoutines() {
+  communicationData.isDoingAllowingEntryRoutine = false;
+  communicationData.isDoingDenyingEntryRoutine = false;
+  buzz1.setMelody(nullptr);
 }
+
+////////////////////////////////////////////////////////////
+
+void updateSelf(HatControlData &aControlData) {}
