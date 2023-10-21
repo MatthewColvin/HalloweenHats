@@ -4,7 +4,6 @@
 #include <espnow.h>
 
 #define NUM_HAT_LEDS 14
-#define NUM_HAT_BUZZERS 2
 
 struct led {
   uint8_t red = 0;
@@ -13,13 +12,14 @@ struct led {
   uint8_t brightness = 0;
 };
 
-struct buzzer {
-  uint8_t loudness = 0;
+struct CommunicationData {
+  bool isDoingAllowingEntryRoutine;
+  bool isDoingDenyingEntryRoutine;
+  unsigned long RoutineStartTime;
 };
 
 struct HatControlData {
   led leds[NUM_HAT_LEDS];
-  buzzer buzzers[NUM_HAT_BUZZERS];
 };
 
 struct Button {
@@ -29,6 +29,7 @@ struct Button {
   uint32_t lastPressTime;
   uint32_t lastReleaseTime;
   bool lastReleaseHandled;
+  bool lastPressHandled;
   // Returns how long the button was held last
   // will be invalid on the next button press
   uint32_t lastHeldTime() {
@@ -38,3 +39,13 @@ struct Button {
     return 0;
   }
 };
+
+// Routine Handlers
+// Update the current state of device based on ControlData
+void updateSelf(HatControlData &aControlData);
+// Update aControlData to make it do the routine for allow entry
+void doAllowEntryRoutineUpdate(HatControlData &aControlData);
+// Update aControlData to make it do the routine for deny entry
+void doDenyEntryRoutineUpdate(HatControlData &aControlData);
+// Maybe some Kind of breathing animation or something?
+void doIdle(HatControlData &aControlData);

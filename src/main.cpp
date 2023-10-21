@@ -5,8 +5,6 @@
 extern void boardSetup();
 extern void boardLoop();
 
-// Bellboy
-
 void setup() {
   // Common
   Serial.begin(115200);
@@ -23,6 +21,4 @@ void setup() {
   boardSetup();
 }
 
-void loop() {
-  boardLoop();
-}
+void loop() { boardLoop(); }
