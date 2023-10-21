@@ -1,6 +1,10 @@
 #pragma once
 #include "structs.hpp"
 
+// Master will use this to update and
+// Slave will receive updates in this variable
+extern CommunicationData communicationData;
+
 // Call in loop to do the routines
 void HandleRoutines();
 

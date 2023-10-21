@@ -6,7 +6,7 @@
 extern void boardSetup();
 extern void boardLoop();
 
-int lastHeartBeatToggle = 0;
+long unsigned int lastHeartBeatToggle = 0;
 constexpr auto HeartBeatHalfCycleLength = 500;
 bool builtInOn = false;
 void doHeartBeat() {

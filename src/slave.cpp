@@ -1,8 +1,7 @@
+#include "routines.hpp"
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <espnow.h>
-
-#include "main.hpp"
 
 // Slave receives the data from master and then runs the same logic.
 CommunicationData communicationData = {.isDoingAllowingEntryRoutine = false,

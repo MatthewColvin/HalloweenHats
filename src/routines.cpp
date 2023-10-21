@@ -1,5 +1,4 @@
 #include "routines.hpp"
-#include "main.hpp" // Shared Communication Data
 #include <Buzzer.h>
 
 Buzzer buzz1(D7);
