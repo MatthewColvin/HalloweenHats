@@ -17,6 +17,11 @@ struct led {
     green = 0;
     blue = 0;
   }
+  void setGreen() {
+    red = 0;
+    green = 255;
+    blue = 0;
+  }
 };
 
 struct CommunicationData {

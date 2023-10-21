@@ -66,7 +66,12 @@ void doAllowEntryRoutineUpdate() {
     isDoingAllowRoutine = true;
   }
   if (buzz1.hasMelody()) {
-    // Ran while doing deny Routine
+    // Ran while doing allow Routine
+    // Set leds green for the accept routine
+    for (int i = 0; i < NUM_HAT_LEDS; i++) {
+      controlData.leds[i].setGreen();
+      controlData.leds[i].brightness = 255;
+    }
   } else {
     if (isDoingAllowRoutine) {
       Serial.println("Ended Allow Entry!");
