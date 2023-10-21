@@ -9,15 +9,19 @@ CommunicationData communicationData = {.isDoingAllowingEntryRoutine = false,
                                        .isDoingDenyingEntryRoutine = false,
                                        .RoutineStartTime = 0};
 
+// uint8_t doorManAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x6E, 0xAA};
 uint8_t doorManAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 // Callback function that will be executed when data is received
 void OnDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
-  memcpy(&communicationData, incomingData, sizeof(communicationData));
+  memcpy(&communicationData, incomingData, sizeof(CommunicationData));
   Serial.println("Got Data");
 }
 
 void boardSetup() {
+  Serial.print("Slave Address:");
+  Serial.println(WiFi.macAddress());
+
   pinMode(LED_BUILTIN, OUTPUT);
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
 

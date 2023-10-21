@@ -6,12 +6,25 @@
 extern void boardSetup();
 extern void boardLoop();
 
+int lastHeartBeatToggle = 0;
+constexpr auto HeartBeatHalfCycleLength = 500;
+bool builtInOn = false;
+void doHeartBeat() {
+  if (lastHeartBeatToggle + HeartBeatHalfCycleLength < millis()) {
+    digitalWrite(LED_BUILTIN, builtInOn ? LOW : HIGH);
+    builtInOn = !builtInOn;
+    lastHeartBeatToggle = millis();
+  }
+}
+
 void setup() {
   // Common
   Serial.begin(115200);
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
+
+  pinMode(LED_BUILTIN, OUTPUT);
 
   // Init ESP-NOW
   if (esp_now_init() != 0) {
@@ -25,4 +38,5 @@ void setup() {
 void loop() {
   boardLoop();
   HandleRoutines();
+  doHeartBeat();
 }

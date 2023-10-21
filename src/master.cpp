@@ -10,7 +10,8 @@ CommunicationData communicationData = {.isDoingAllowingEntryRoutine = false,
                                        .isDoingDenyingEntryRoutine = false,
                                        .RoutineStartTime = 0};
 
-uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t bellBoyAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x81, 0x6C};
+// uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 Button button1 = {D6, 0, false, 0, 0, false, false};
 
@@ -38,6 +39,9 @@ void IRAM_ATTR button_isr() {
 }
 
 void boardSetup() {
+  // Serial.print("MASTER ADDRESS:");
+  // Serial.println(WiFi.macAddress());
+
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
 
   pinMode(button1.PIN, INPUT_PULLUP);
@@ -57,11 +61,11 @@ void boardSetup() {
 void boardLoop() { checkRoutineStart(); }
 
 void onDataSend(uint8 *mac_addr, uint8_t sentStatus) {
-  Serial.print("Last Packet Send Status: ");
+  // Serial.print("Last Packet Send Status: ");
   if (sentStatus == 0) {
-    Serial.println("Delivery success");
+    // Serial.println("Delivery success");
   } else {
-    Serial.println("Delivery fail");
+    // Serial.println("Delivery fail");
   }
 }
 
@@ -110,7 +114,7 @@ void checkRoutineStart() {
 
 void SendSlaveUpdate() {
   if (auto err = esp_now_send(bellBoyAddress, (uint8_t *)&communicationData,
-                              sizeof(communicationData));
+                              sizeof(CommunicationData));
       err != 0) {
     Serial.print("Error adding peer: ");
     Serial.println(err);

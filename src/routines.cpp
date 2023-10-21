@@ -5,6 +5,9 @@
 Buzzer buzz1(D7);
 HatControlData controlData;
 
+bool isAllowRoutineSetup = false;
+bool isDenyRoutineSetup = false;
+
 Buzzer::Melody_t denyTone{
     .nbNotes = 24,
     .duration = {80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
@@ -30,6 +33,9 @@ void HandleRoutines() {
   } else if (communicationData.isDoingDenyingEntryRoutine) {
     doDenyEntryRoutineUpdate(controlData);
   } else {
+    if (buzz1.hasMelody()) {
+      buzz1.setMelody(nullptr);
+    }
     doIdle(controlData);
   }
   updateSelf(controlData);
@@ -38,17 +44,42 @@ void HandleRoutines() {
 }
 
 void doAllowEntryRoutineUpdate(HatControlData &aControlData) {
-  Serial.println("AllowEntry!!");
-  buzz1.setMelody(&acceptTone);
-  buzz1.unmute();
-  communicationData.isDoingAllowingEntryRoutine = false;
+  if (!isAllowRoutineSetup) {
+    Serial.println("AllowEntry!!");
+    buzz1.setMelody(&acceptTone);
+    buzz1.unmute();
+    isAllowRoutineSetup = true;
+  }
+  if (buzz1.hasMelody()) {
+    // Ran while doing deny Routine
+  } else {
+    if (isAllowRoutineSetup) {
+      Serial.println("Ended Allow Entry!");
+      communicationData.isDoingAllowingEntryRoutine = false;
+      isAllowRoutineSetup = false;
+    }
+  }
 }
 
 void doDenyEntryRoutineUpdate(HatControlData &aControlData) {
-  Serial.println("DenyEntry!!");
-  buzz1.setMelody(&denyTone);
-  buzz1.unmute();
-  communicationData.isDoingDenyingEntryRoutine = false;
+  if (!isDenyRoutineSetup) {
+    // Called once for setup
+    Serial.println("Deny Entry!!");
+    buzz1.setMelody(&denyTone);
+    buzz1.unmute();
+    isDenyRoutineSetup = true;
+  }
+  if (buzz1.hasMelody()) {
+    // Ran while doing deny Routine
+
+  } else {
+    // Clean up Setup Routine if its setup and end routine
+    if (isDenyRoutineSetup) {
+      Serial.println("Ended Deny Entry!");
+      communicationData.isDoingDenyingEntryRoutine = false;
+      isDenyRoutineSetup = false;
+    }
+  }
 }
 
 constexpr auto halfBreathTime = 1000;
@@ -71,7 +102,6 @@ void doIdle(HatControlData &aControlData) {
 void cancelRoutines() {
   communicationData.isDoingAllowingEntryRoutine = false;
   communicationData.isDoingDenyingEntryRoutine = false;
-  buzz1.setMelody(nullptr);
 }
 
 ////////////////////////////////////////////////////////////
