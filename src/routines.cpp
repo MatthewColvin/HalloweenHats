@@ -8,10 +8,13 @@ bool isDoingAllowRoutine = false;
 bool isDoingDenyRoutine = false;
 unsigned long int routineStart = 0;
 
+auto denyToneNoteLength = 80;
+auto denyToneNoteCycleLength = denyToneNoteLength * 3;
+uint16_t x = denyToneNoteLength;
 Buzzer::Melody_t denyTone{
     .nbNotes = 24,
-    .duration = {80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
-                 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80},
+    .duration = {x, x, x, x, x, x, x, x, x, x, x, x,
+                 x, x, x, x, x, x, x, x, x, x, x},
     .frequency = {
         E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ,
         G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ,
@@ -20,6 +23,7 @@ Buzzer::Melody_t denyTone{
         G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ,
         A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ}};
 
+auto acceptToneLength = 50 + 50 + 100 + 200;
 Buzzer::Melody_t acceptTone{
     .nbNotes = 4,
     .duration = {50, 50, 100, 200},
@@ -83,7 +87,14 @@ void doDenyEntryRoutineUpdate() {
   }
   if (buzz1.hasMelody()) {
     // Ran while doing deny Routine
-
+    // Set leds to red and blink at rate of tone cycle
+    auto timeIntoRoutine = millis() - routineStart;
+    auto ledBrightness = map(timeIntoRoutine % denyToneNoteCycleLength, 0,
+                             denyToneNoteCycleLength, 0, 255);
+    for (int i = 0; i < NUM_HAT_LEDS; i++) {
+      controlData.leds[i].setRed();
+      controlData.leds[i].brightness = ledBrightness;
+    }
   } else {
     // Clean up Setup Routine if its setup and end routine
     if (isDoingDenyRoutine) {
