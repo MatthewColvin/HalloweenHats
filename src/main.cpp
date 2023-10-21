@@ -1,3 +1,4 @@
+#include "routines.hpp"
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <espnow.h>
@@ -21,4 +22,7 @@ void setup() {
   boardSetup();
 }
 
-void loop() { boardLoop(); }
+void loop() {
+  boardLoop();
+  HandleRoutines();
+}
