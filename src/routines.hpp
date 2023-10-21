@@ -10,14 +10,14 @@ void HandleRoutines();
 
 // Routine Handlers
 // Update aControlData to make it do the routine for allow entry
-void doAllowEntryRoutineUpdate(HatControlData &aControlData);
+void doAllowEntryRoutineUpdate();
 // Update aControlData to make it do the routine for deny entry
-void doDenyEntryRoutineUpdate(HatControlData &aControlData);
+void doDenyEntryRoutineUpdate();
 // Maybe some Kind of breathing animation or something?
-void doIdle(HatControlData &aControlData);
+void doIdle();
 // Cancel all routines
 void cancelRoutines();
 
 // Color Update
-// Update the leds based on the current structures
-void updateSelf(HatControlData &aControlData);
+// Update the leds based on the current hat control data
+void SendLEDStripUpdate();

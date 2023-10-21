@@ -25,25 +25,35 @@ Buzzer::Melody_t acceptTone{
     .duration = {50, 50, 100, 200},
     .frequency = {F5_NOTE_FREQ, G5_NOTE_FREQ, A5_NOTE_FREQ, B5_NOTE_FREQ}};
 
+////////////////////////////////////////////////////////////
+unsigned long int lastStripUpdate = 0;
+constexpr auto ledStripUpdateRate = 100;
+void SendLEDStripUpdate() {}
+
 //////////////////////////////////////////////////////////////////
 
 void HandleRoutines() {
   if (communicationData.isRequestingAllowingEntryRoutine) {
-    doAllowEntryRoutineUpdate(controlData);
+    doAllowEntryRoutineUpdate();
   } else if (communicationData.isRequestingDenyingEntryRoutine) {
-    doDenyEntryRoutineUpdate(controlData);
+    doDenyEntryRoutineUpdate();
   } else {
     if (buzz1.hasMelody()) {
       buzz1.setMelody(nullptr);
     }
-    doIdle(controlData);
+    doIdle();
   }
-  updateSelf(controlData);
+
+  if (auto currentTime = millis();
+      lastStripUpdate + ledStripUpdateRate < currentTime) {
+    SendLEDStripUpdate();
+    lastStripUpdate = currentTime;
+  }
 
   buzz1.step();
 }
 
-void doAllowEntryRoutineUpdate(HatControlData &aControlData) {
+void doAllowEntryRoutineUpdate() {
   if (!isDoingAllowRoutine) {
     Serial.println("AllowEntry!!");
     routineStart = millis();
@@ -62,7 +72,7 @@ void doAllowEntryRoutineUpdate(HatControlData &aControlData) {
   }
 }
 
-void doDenyEntryRoutineUpdate(HatControlData &aControlData) {
+void doDenyEntryRoutineUpdate() {
   if (!isDoingDenyRoutine) {
     // Called once for setup
     Serial.println("Deny Entry!!");
@@ -86,7 +96,7 @@ void doDenyEntryRoutineUpdate(HatControlData &aControlData) {
 
 constexpr auto halfBreathTime = 1000;
 uint32_t numIdleCycles = 0;
-void doIdle(HatControlData &aControlData) {
+void doIdle() {
   auto currentTime = millis();
   numIdleCycles = currentTime / halfBreathTime;
   auto currentPortion = currentTime % halfBreathTime;
@@ -94,10 +104,10 @@ void doIdle(HatControlData &aControlData) {
   bool isBreathOut = numIdleCycles % 2 == 0;
 
   for (int i = 0; i < NUM_HAT_LEDS; i++) {
-    aControlData.leds[i].setWhite();
+    controlData.leds[i].setWhite();
     auto value = 255 - map(currentPortion, 0, halfBreathTime, 0, 255);
     auto brightness = isBreathOut ? 255 - value : value;
-    aControlData.leds[i].brightness = brightness;
+    controlData.leds[i].brightness = brightness;
   }
 }
 
@@ -105,7 +115,3 @@ void cancelRoutines() {
   communicationData.isRequestingAllowingEntryRoutine = false;
   communicationData.isRequestingDenyingEntryRoutine = false;
 }
-
-////////////////////////////////////////////////////////////
-
-void updateSelf(HatControlData &aControlData) {}
