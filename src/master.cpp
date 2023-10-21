@@ -5,14 +5,7 @@
 
 #include "main.hpp"
 
-// Doorman
-unsigned long lastTimeBellBoyRanErand = 0;
-// 100ms between updates to slave
-static constexpr auto timeBetweenErand = 1000;
-
-HatControlData doorManData; // Controller of the 2 headsets
-HatControlData bellBoyData; // Controlled by the 1 headset
-// variables to keep track of the timing of recent interrupts
+HatControlData controlData;
 
 CommunicationData aDataToSendToSlave{.isDoingAllowingEntryRoutine = false,
                                      .isDoingDenyingEntryRoutine = false,
@@ -21,24 +14,14 @@ CommunicationData aDataToSendToSlave{.isDoingAllowingEntryRoutine = false,
 uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 Button button1 = {D6, 0, false, 0, 0, false, false};
-uint32_t numHandledPresses = 0;
 Buzzer buzz1(D7);
-
-Buzzer::Melody_t acceptTone{
-    .nbNotes = 12,
-    .duration = {80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80},
-    .frequency = {E4_NOTE_FREQ, B4_NOTE_FREQ, E5_NOTE_FREQ, E4_NOTE_FREQ,
-                  B4_NOTE_FREQ, E5_NOTE_FREQ, E4_NOTE_FREQ, B4_NOTE_FREQ,
-                  E5_NOTE_FREQ, E4_NOTE_FREQ, B4_NOTE_FREQ, E5_NOTE_FREQ,
-                  E4_NOTE_FREQ, B4_NOTE_FREQ, E5_NOTE_FREQ, E4_NOTE_FREQ,
-                  B4_NOTE_FREQ, E5_NOTE_FREQ}};
 
 void onDataSend(uint8 *mac_addr, uint8_t sentStatus);
 
 // Send Update to slave controller to let it know we are starting or stopping
 // routines.
 void SendSlaveUpdate();
-// Check if we need to start a routine
+// Check if we need to start a routine based on button presses
 void checkRoutineStart();
 
 void IRAM_ATTR button_isr() {
@@ -77,13 +60,13 @@ void boardLoop() {
   checkRoutineStart();
 
   if (aDataToSendToSlave.isDoingAllowingEntryRoutine) {
-    doAllowEntryRoutineUpdate(doorManData);
+    doAllowEntryRoutineUpdate(controlData);
   } else if (aDataToSendToSlave.isDoingDenyingEntryRoutine) {
-    doDenyEntryRoutineUpdate(doorManData);
+    doDenyEntryRoutineUpdate(controlData);
   } else {
-    doIdle(doorManData);
+    doIdle(controlData);
   }
-  updateSelf(doorManData);
+  updateSelf(controlData);
 
   buzz1.step();
 }
@@ -105,13 +88,25 @@ void doAllowEntryRoutineUpdate(HatControlData &aControlData) {
 
 void doDenyEntryRoutineUpdate(HatControlData &aControlData) {
   Serial.println("DenyEntry!!");
+  buzz1.setMelody(&denyTone);
   aDataToSendToSlave.isDoingDenyingEntryRoutine = false;
 }
 
+constexpr auto halfBreathTime = 1000;
+uint32_t numIdleCycles = 0;
 void doIdle(HatControlData &aControlData) {
-  // auto current_time = millis();
+  auto currentTime = millis();
+  numIdleCycles = currentTime / halfBreathTime;
+  auto currentPortion = currentTime % halfBreathTime;
 
-  // for (int i = 0; i <)
+  bool isBreathOut = numIdleCycles % 2 == 0;
+
+  for (int i = 0; i < NUM_HAT_LEDS; i++) {
+    aControlData.leds[i].setWhite();
+    auto value = 255 - map(currentPortion, 0, halfBreathTime, 0, 255);
+    auto brightness = isBreathOut ? 255 - value : value;
+    aControlData.leds[i].brightness = brightness;
+  }
 }
 
 void checkRoutineStart() {

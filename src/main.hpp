@@ -10,6 +10,12 @@ struct led {
   uint8_t green = 0;
   uint8_t blue = 0;
   uint8_t brightness = 0;
+
+  void setWhite() {
+    red = 255;
+    green = 255;
+    blue = 255;
+  }
 };
 
 struct CommunicationData {
@@ -39,6 +45,23 @@ struct Button {
     return 0;
   }
 };
+
+Buzzer::Melody_t denyTone{
+    .nbNotes = 24,
+    .duration = {80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80},
+    .frequency = {
+        E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ,
+        G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ,
+        A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ,
+        E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ,
+        G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ,
+        A4_NOTE_FREQ, G5_NOTE_FREQ, E4_NOTE_FREQ, A4_NOTE_FREQ, G5_NOTE_FREQ}};
+
+Buzzer::Melody_t acceptTone{
+    .nbNotes = 4,
+    .duration = {50, 50, 100, 200},
+    .frequency = {F5_NOTE_FREQ, G5_NOTE_FREQ, A5_NOTE_FREQ, B5_NOTE_FREQ}};
 
 // Routine Handlers
 // Update the current state of device based on ControlData
