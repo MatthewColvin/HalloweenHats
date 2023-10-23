@@ -33,6 +33,7 @@ void setup() {
   }
 
   boardSetup();
+  HandleRoutineSetup();
 }
 
 void loop() {

@@ -12,7 +12,7 @@ CommunicationData communicationData = {
 uint8_t bellBoyAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x81, 0x6C};
 // uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-Button button1 = {D6, 0, false, 0, 0, false, false};
+Button button1 = {D1, 0, false, 0, 0, false, false};
 
 void onDataSend(uint8 *mac_addr, uint8_t sentStatus);
 
