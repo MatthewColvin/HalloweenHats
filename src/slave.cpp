@@ -3,6 +3,8 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
+/////////////////////////Depreciated////////////////////////////////////
+
 // Slave receives the data from master and then runs the same logic.
 CommunicationData communicationData = {
     .isRequestingAllowingEntryRoutine = false,

@@ -42,7 +42,7 @@ unsigned long int lastStripUpdate = 0;
 constexpr auto ledStripUpdateRate = 100;
 
 void SendLEDStripUpdate() {
-  for( uint8 i = 0; i < NUM_LEDS; i++ ) {
+  for (uint8 i = 0; i < NUM_LEDS; i++) {
     leds[i].r = controlData.leds[i].red;
     leds[i].g = controlData.leds[i].green;
     leds[i].b = controlData.leds[i].blue;
@@ -144,7 +144,11 @@ void doIdle() {
     controlData.leds[i].setWhite();
     auto value = 255 - map(currentPortion, 0, halfBreathTime, 0, 255);
     auto brightness = isBreathOut ? 255 - value : value;
-    controlData.leds[i].brightness = brightness;
+    if (!communicationData.isLightsOnInIdle) {
+      controlData.leds[i].brightness = 0;
+    } else {
+      controlData.leds[i].brightness = brightness;
+    }
   }
 }
 

@@ -6,19 +6,22 @@
 
 // Manage and send communication data via the CheckRoutineStartFunction
 CommunicationData communicationData = {
-    .isRequestingAllowingEntryRoutine = false,
-    .isRequestingDenyingEntryRoutine = false};
 
-uint8_t bellBoyAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x81, 0x6C};
-// uint8_t bellBoyAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    .isRequestingAllowingEntryRoutine = false,
+    .isRequestingDenyingEntryRoutine = false,
+    .isLightsOnInIdle = true};
+
+uint8_t buddyAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x81, 0x6C};
+// uint8_t buddyAddress[] = {0x24, 0xD7, 0xEB, 0xCA, 0x6E, 0xAA};
 
 Button button1 = {D1, 0, false, 0, 0, false, false};
 
 void onDataSend(uint8 *mac_addr, uint8_t sentStatus);
+void OnDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len);
 
 // Send Update to slave controller to let it know we are starting or stopping
 // routines.
-void SendSlaveUpdate();
+void SendBuddyUpdate();
 // Check if we need to start a routine based on button presses
 void checkRoutineStart();
 
@@ -47,7 +50,8 @@ void boardSetup() {
   attachInterrupt(button1.PIN, button_isr, CHANGE);
 
   esp_now_register_send_cb(onDataSend);
-  int err = esp_now_add_peer(bellBoyAddress, ESP_NOW_ROLE_COMBO, 1, nullptr, 0);
+  esp_now_register_recv_cb(OnDataRecv);
+  int err = esp_now_add_peer(buddyAddress, ESP_NOW_ROLE_COMBO, 1, nullptr, 0);
 
   if (0 == err) {
     Serial.println("Added peer successfully");
@@ -68,6 +72,12 @@ void onDataSend(uint8 *mac_addr, uint8_t sentStatus) {
   }
 }
 
+// Callback function that will be executed when data is received
+void OnDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
+  memcpy(&communicationData, incomingData, sizeof(CommunicationData));
+  Serial.println("Got Data");
+}
+
 void checkRoutineStart() {
   if (button1.pressed) {
     // Cancel routines on press so we have a way to quickly cancel
@@ -75,7 +85,7 @@ void checkRoutineStart() {
     if (!button1.lastPressHandled) {
       cancelRoutines();
       Serial.println("Canceled Routines");
-      SendSlaveUpdate();
+      SendBuddyUpdate();
       button1.lastPressHandled = true;
     }
     return;
@@ -96,19 +106,19 @@ void checkRoutineStart() {
   if (button1.lastHeldTime() > 500) {
     button1.lastReleaseHandled = true;
     communicationData.isRequestingDenyingEntryRoutine = true;
-    SendSlaveUpdate();
+    SendBuddyUpdate();
     return;
   }
   // quick press does allow entry
   if (button1.lastHeldTime() > 30) {
     button1.lastReleaseHandled = true;
     communicationData.isRequestingAllowingEntryRoutine = true;
-    SendSlaveUpdate();
+    SendBuddyUpdate();
   }
 }
 
-void SendSlaveUpdate() {
-  if (auto err = esp_now_send(bellBoyAddress, (uint8_t *)&communicationData,
+void SendBuddyUpdate() {
+  if (auto err = esp_now_send(buddyAddress, (uint8_t *)&communicationData,
                               sizeof(CommunicationData));
       err != 0) {
     Serial.print("Error adding peer: ");

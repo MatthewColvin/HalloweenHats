@@ -27,6 +27,7 @@ struct led {
 struct CommunicationData {
   bool isRequestingAllowingEntryRoutine;
   bool isRequestingDenyingEntryRoutine;
+  bool isLightsOnInIdle;
 };
 
 struct HatControlData {
