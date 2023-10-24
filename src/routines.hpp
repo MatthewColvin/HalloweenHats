@@ -11,10 +11,12 @@ void HandleRoutineSetup();
 void HandleRoutines();
 
 // Routine Handlers
-// Update aControlData to make it do the routine for allow entry
+// Update controlData to make it do the routine for allow entry
 void doAllowEntryRoutineUpdate();
-// Update aControlData to make it do the routine for deny entry
+// Update controlData to make it do the routine for deny entry
 void doDenyEntryRoutineUpdate();
+// Update controlData to make it run the mario routine
+void doMarioRoutineUpdate();
 // Maybe some Kind of breathing animation or something?
 void doIdle();
 // Cancel all routines

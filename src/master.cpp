@@ -97,11 +97,19 @@ void checkRoutineStart() {
   }
 
   // One Second or longer press does no routine this will act a cancel
-  if (button1.lastHeldTime() > 1000) {
+  if (button1.lastHeldTime() > 3000) {
     button1.lastReleaseHandled = true;
 
     return;
   }
+
+  if (button1.lastHeldTime() > 2000) {
+    button1.lastReleaseHandled = true;
+    communicationData.isRequestingMarioRoutine = true;
+    SendBuddyUpdate();
+    return;
+  }
+
   // Half second press does deny
   if (button1.lastHeldTime() > 500) {
     button1.lastReleaseHandled = true;
