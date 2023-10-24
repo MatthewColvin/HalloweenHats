@@ -5,6 +5,8 @@
 // Slave will receive updates in this variable
 extern CommunicationData communicationData;
 
+void HandleRoutineSetup();
+
 // Call in loop to do the routines
 void HandleRoutines();
 

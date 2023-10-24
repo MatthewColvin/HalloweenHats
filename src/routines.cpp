@@ -1,7 +1,13 @@
 #include "routines.hpp"
 #include <Buzzer.h>
+#include <FastLED.h>
 
-Buzzer buzz1(D7);
+#define NUM_LEDS 12
+
+#define DATA_PIN D7
+#define CLOCK_PIN D5
+
+Buzzer buzz1(D8);
 HatControlData controlData;
 
 bool isDoingAllowRoutine = false;
@@ -29,12 +35,27 @@ Buzzer::Melody_t acceptTone{
     .duration = {50, 50, 100, 200},
     .frequency = {F5_NOTE_FREQ, G5_NOTE_FREQ, A5_NOTE_FREQ, B5_NOTE_FREQ}};
 
+CRGB leds[NUM_LEDS];
+
 ////////////////////////////////////////////////////////////
 unsigned long int lastStripUpdate = 0;
 constexpr auto ledStripUpdateRate = 100;
-void SendLEDStripUpdate() {}
+
+void SendLEDStripUpdate() {
+  for( uint8 i = 0; i < NUM_LEDS; i++ ) {
+    leds[i].r = controlData.leds[i].red;
+    leds[i].g = controlData.leds[i].green;
+    leds[i].b = controlData.leds[i].blue;
+    FastLED.setBrightness(controlData.leds[i].brightness);
+  }
+  FastLED.show();
+}
 
 //////////////////////////////////////////////////////////////////
+
+void HandleRoutineSetup() {
+  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);
+}
 
 void HandleRoutines() {
   if (communicationData.isRequestingAllowingEntryRoutine) {
