@@ -2,8 +2,6 @@
 #include <Buzzer.h>
 #include <FastLED.h>
 
-#define NUM_LEDS 12
-
 #define DATA_PIN D7
 #define CLOCK_PIN D5
 
@@ -66,14 +64,14 @@ Buzzer::Melody_t marioMainTheme{
         NOTE_G6, NOTE_E7, NOTE_G7, NOTE_A7, 0,       NOTE_F7,  NOTE_G7, 0,
         NOTE_E7, 0,       NOTE_C7, NOTE_D7, NOTE_B6, 0,        0}};
 
-CRGB leds[NUM_LEDS];
+CRGB leds[NUM_HAT_LEDS];
 
 ////////////////////////////////////////////////////////////
 unsigned long int lastStripUpdate = 0;
 constexpr auto ledStripUpdateRate = 100;
 
 void SendLEDStripUpdate() {
-  for (uint8 i = 0; i < NUM_LEDS; i++) {
+  for (uint8 i = 0; i < NUM_HAT_LEDS; i++) {
     leds[i].r = controlData.leds[i].red;
     leds[i].g = controlData.leds[i].green;
     leds[i].b = controlData.leds[i].blue;
@@ -85,7 +83,7 @@ void SendLEDStripUpdate() {
 //////////////////////////////////////////////////////////////////
 
 void HandleRoutineSetup() {
-  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);
+  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_HAT_LEDS);
 }
 
 void HandleRoutines() {
