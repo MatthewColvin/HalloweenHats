@@ -115,12 +115,18 @@ struct led {
     green = 255;
     blue = 0;
   }
+  void setBlue() {
+    red = 0;
+    green = 0;
+    blue = 255;
+  }
 };
 
 struct CommunicationData {
   bool isRequestingAllowingEntryRoutine;
   bool isRequestingDenyingEntryRoutine;
   bool isRequestingMarioRoutine;
+  bool isRequestingJeopardyRoutine;
   bool isLightsOnInIdle;
 };
 

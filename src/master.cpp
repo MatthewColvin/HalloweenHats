@@ -10,6 +10,7 @@ CommunicationData communicationData = {
     .isRequestingAllowingEntryRoutine = false,
     .isRequestingDenyingEntryRoutine = false,
     .isRequestingMarioRoutine = false,
+    .isRequestingJeopardyRoutine = false,
     .isLightsOnInIdle = true};
 
 uint8_t david[] = {0x24, 0xD7, 0xEB, 0xCA, 0x81, 0x6C};

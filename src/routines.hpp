@@ -17,6 +17,8 @@ void doAllowEntryRoutineUpdate();
 void doDenyEntryRoutineUpdate();
 // Update controlData to make it run the mario routine
 void doMarioRoutineUpdate();
+// Update controlData to do the jeopardy song
+void doJeopardyRoutineUpdate();
 // Maybe some Kind of breathing animation or something?
 void doIdle();
 // Cancel all routines

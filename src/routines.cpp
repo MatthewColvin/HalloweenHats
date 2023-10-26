@@ -11,6 +11,7 @@ HatControlData controlData;
 bool isDoingAllowRoutine = false;
 bool isDoingDenyRoutine = false;
 bool isDoingMarioRoutine = false;
+bool isDoingJeopardyRoutine = false;
 unsigned long int routineStart = 0;
 
 auto denyToneNoteLength = 80;
@@ -64,6 +65,19 @@ Buzzer::Melody_t marioMainTheme{
         NOTE_G6, NOTE_E7, NOTE_G7, NOTE_A7, 0,       NOTE_F7,  NOTE_G7, 0,
         NOTE_E7, 0,       NOTE_C7, NOTE_D7, NOTE_B6, 0,        0}};
 
+Buzzer::Melody_t jeopardy{
+    .nbNotes = 34,
+    .duration =
+        {500, 500, 500, 500, 500, 500, 1000, 500, 500, 500, 500, 666, 250,
+         250, 250, 250, 250, 500, 500, 500, 500, // the same again
+         500, 500, 1000, 500, 250, 250, 500, 500, 500, 500, 500, 500, 0},
+    .frequency = {NOTE_C2,  NOTE_F3, NOTE_C3, NOTE_A2, NOTE_C3,  NOTE_F3,
+                  NOTE_C3,  NOTE_C3, NOTE_F3, NOTE_C3, NOTE_F3,  NOTE_AS3,
+                  NOTE_G3,  NOTE_F3, NOTE_E3, NOTE_D3, NOTE_CS3, NOTE_C3,
+                  NOTE_F3,  NOTE_C3, NOTE_A2, NOTE_C3, NOTE_F3,  NOTE_C3,
+                  NOTE_AS3, 0,       NOTE_G3, NOTE_F3, NOTE_E3,  NOTE_D3,
+                  NOTE_CS3, NOTE_C3}};
+
 CRGB leds[NUM_HAT_LEDS];
 
 ////////////////////////////////////////////////////////////
@@ -93,6 +107,8 @@ void HandleRoutines() {
     doDenyEntryRoutineUpdate();
   } else if (communicationData.isRequestingMarioRoutine) {
     doMarioRoutineUpdate();
+  } else if (communicationData.isRequestingJeopardyRoutine) {
+    doJeopardyRoutineUpdate();
   } else {
     if (buzz1.hasMelody()) {
       buzz1.setMelody(nullptr);
@@ -200,6 +216,44 @@ void doMarioRoutineUpdate() {
   }
 }
 
+void doJeopardyRoutineUpdate() {
+  if (!isDoingJeopardyRoutine) {
+    Serial.println("Jeopardy Entry!!");
+    routineStart = millis();
+    buzz1.setMelody(&jeopardy);
+    buzz1.unmute();
+    isDoingJeopardyRoutine = true;
+  }
+  if (buzz1.hasMelody()) {
+    auto timeIntoRoutine = millis() - routineStart;
+    auto cycleLength = 500;
+    auto cycleNum = timeIntoRoutine / cycleLength;
+    auto firstSetSwapped = cycleNum % 2 == 0;
+    for (int i = 0; i < NUM_HAT_LEDS; i++) {
+      if (i % 2 == 0) {
+        if (firstSetSwapped) {
+          controlData.leds[i].setBlue();
+        } else {
+          controlData.leds[i].setWhite();
+        }
+      } else {
+        if (firstSetSwapped) {
+          controlData.leds[i].setWhite();
+        } else {
+          controlData.leds[i].setBlue();
+        }
+      }
+      controlData.leds[i].brightness = 255;
+    }
+  } else {
+    if (isDoingJeopardyRoutine) {
+      Serial.println("Ended Jeopardy!");
+      communicationData.isRequestingJeopardyRoutine = false;
+      isDoingJeopardyRoutine = false;
+    }
+  }
+}
+
 constexpr auto halfBreathTime = 1000;
 uint32_t numIdleCycles = 0;
 void doIdle() {
@@ -225,4 +279,5 @@ void cancelRoutines() {
   communicationData.isRequestingAllowingEntryRoutine = false;
   communicationData.isRequestingDenyingEntryRoutine = false;
   communicationData.isRequestingMarioRoutine = false;
+  communicationData.isRequestingJeopardyRoutine = false;
 }
